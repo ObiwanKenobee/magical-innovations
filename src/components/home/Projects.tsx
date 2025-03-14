@@ -2,9 +2,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import AnimatedText from "../ui/AnimatedText";
 import ProjectCard from "../ui/ProjectCard";
+import { Project, fetchProjects } from "@/services/projectService";
+import { toast } from "sonner";
 
 export default function Projects() {
   const [isVisible, setIsVisible] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -28,57 +32,95 @@ export default function Projects() {
     };
   }, []);
 
-  // Project data
-  const projects = [
+  useEffect(() => {
+    const loadProjects = async () => {
+      setIsLoading(true);
+      try {
+        const data = await fetchProjects();
+        setProjects(data);
+      } catch (error) {
+        console.error("Error loading projects:", error);
+        toast.error("Failed to load projects");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProjects();
+  }, []);
+
+  // Fallback projects (will be used if no data is available from the API)
+  const fallbackProjects = [
     {
+      id: "1",
       title: "Divine Insights Dashboard",
       description: "AI-powered analytics platform providing insights through enchanting data visualization with real-time updates.",
-      imageSrc: "/placeholder.svg",
+      image_url: "/placeholder.svg",
       technologies: ["React", "TensorFlow.js", "D3.js", "WebGL"],
-      demoUrl: "https://example.com",
-      githubUrl: "https://github.com",
+      demo_url: "https://example.com",
+      github_url: "https://github.com",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     },
     {
+      id: "2",
       title: "Spellbound Commerce",
       description: "E-commerce platform with magical user interactions and immersive product exploration experiences.",
-      imageSrc: "/placeholder.svg",
+      image_url: "/placeholder.svg",
       technologies: ["Next.js", "GraphQL", "Framer Motion", "Stripe"],
-      demoUrl: "https://example.com",
-      githubUrl: "https://github.com",
+      demo_url: "https://example.com",
+      github_url: "https://github.com",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     },
     {
+      id: "3",
       title: "Sacred Code Editor",
       description: "Collaborative code editor with philosophical inspirations and mystical syntax highlighting themes.",
-      imageSrc: "/placeholder.svg",
+      image_url: "/placeholder.svg",
       technologies: ["TypeScript", "WebSockets", "Monaco Editor", "Node.js"],
-      demoUrl: "https://example.com",
-      githubUrl: "https://github.com",
+      demo_url: "https://example.com",
+      github_url: "https://github.com",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     },
     {
+      id: "4",
       title: "Ethereal Cloud Platform",
       description: "Cloud infrastructure management tool with intuitive visual programming and automated scaling.",
-      imageSrc: "/placeholder.svg",
+      image_url: "/placeholder.svg",
       technologies: ["Python", "AWS", "Docker", "Kubernetes"],
-      demoUrl: "https://example.com",
-      githubUrl: "https://github.com",
+      demo_url: "https://example.com",
+      github_url: "https://github.com",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     },
     {
+      id: "5",
       title: "Mystic Messenger",
       description: "Secure messaging application with enchanting animations and thoughtful interaction design.",
-      imageSrc: "/placeholder.svg",
+      image_url: "/placeholder.svg",
       technologies: ["Flutter", "Firebase", "End-to-End Encryption", "WebRTC"],
-      demoUrl: "https://example.com",
-      githubUrl: "https://github.com",
+      demo_url: "https://example.com",
+      github_url: "https://github.com",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     },
     {
+      id: "6",
       title: "Arcane Analytics",
       description: "Machine learning platform that reveals hidden patterns in data through innovative visualizations.",
-      imageSrc: "/placeholder.svg",
+      image_url: "/placeholder.svg",
       technologies: ["PyTorch", "React", "Three.js", "Scikit-learn"],
-      demoUrl: "https://example.com",
-      githubUrl: "https://github.com",
+      demo_url: "https://example.com",
+      github_url: "https://github.com",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     },
   ];
+
+  // Display fallback projects if no data is available from the API
+  const displayProjects = projects.length > 0 ? projects : fallbackProjects;
 
   return (
     <section
@@ -117,21 +159,30 @@ export default function Projects() {
           </p>
         </div>
 
+        {/* Loading state */}
+        {isLoading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+          </div>
+        )}
+
         {/* Projects grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project, index) => (
-            <ProjectCard
-              key={index}
-              index={index}
-              title={project.title}
-              description={project.description}
-              imageSrc={project.imageSrc}
-              technologies={project.technologies}
-              demoUrl={project.demoUrl}
-              githubUrl={project.githubUrl}
-            />
-          ))}
-        </div>
+        {!isLoading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {displayProjects.map((project, index) => (
+              <ProjectCard
+                key={project.id}
+                index={index}
+                title={project.title}
+                description={project.description}
+                imageSrc={project.image_url || "/placeholder.svg"}
+                technologies={project.technologies}
+                demoUrl={project.demo_url || undefined}
+                githubUrl={project.github_url || undefined}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
