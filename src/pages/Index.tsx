@@ -8,11 +8,13 @@ import About from "../components/home/About";
 import Projects from "../components/home/Projects";
 import TechStack from "../components/home/TechStack";
 import Contact from "../components/home/Contact";
+import WebGLBackground from "../components/effects/WebGLBackground";
 
 const Index = () => {
   return (
     <ThemeProvider>
       <div className="min-h-screen flex flex-col">
+        <WebGLBackground />
         <Navbar />
         <main className="flex-grow">
           <Hero />

@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 interface ProjectCardProps {
@@ -24,12 +24,33 @@ export default function ProjectCard({
   index,
 }: ProjectCardProps) {
   const [isRevealed, setIsRevealed] = useState(false);
+  const [rotation, setRotation] = useState({ x: 0, y: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
   
   // Staggered delay based on card index
   const revealDelay = index * 100;
 
+  // 3D tilt effect handlers
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    
+    const rotateX = (y - 0.5) * 10; // -5 to 5 degrees
+    const rotateY = (x - 0.5) * -10; // -5 to 5 degrees
+    
+    setRotation({ x: rotateX, y: rotateY });
+  };
+  
+  const resetRotation = () => {
+    setRotation({ x: 0, y: 0 });
+  };
+
   return (
     <div 
+      ref={cardRef}
       className={cn(
         "group relative bg-white/10 backdrop-blur-lg rounded-xl overflow-hidden border border-white/20 shadow-md",
         "transition-all duration-700 ease-out",
@@ -41,8 +62,11 @@ export default function ProjectCard({
       )}
       style={{ 
         transitionDelay: `${revealDelay}ms`,
-        transformStyle: "preserve-3d" 
+        transformStyle: "preserve-3d",
+        transform: `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`
       }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={resetRotation}
       onMouseEnter={() => setIsRevealed(true)}
     >
       {/* Project Image with Overlay */}
