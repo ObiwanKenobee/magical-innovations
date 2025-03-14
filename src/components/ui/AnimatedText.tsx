@@ -17,7 +17,7 @@ interface AnimatedTextProps {
 export default function AnimatedText({
   text,
   className = "",
-  tag: Tag = "h2",
+  tag = "h2",
   delay = 0,
   direction = "bottom",
   animationDuration = 0.5,
@@ -25,7 +25,8 @@ export default function AnimatedText({
   threshold = 0.1,
   once = true,
 }: AnimatedTextProps) {
-  const textRef = useRef<HTMLElement>(null);
+  // Create a ref that's properly typed for the specified element
+  const textRef = useRef<HTMLElement | null>(null);
   const hasAnimated = useRef(false);
 
   useEffect(() => {
@@ -67,7 +68,7 @@ export default function AnimatedText({
   // Split the text into individual characters with spans
   const renderText = () => {
     return text.split("").map((char, index) => {
-      let initialTransform;
+      let initialTransform = "";
 
       switch (direction) {
         case "top":
@@ -102,13 +103,14 @@ export default function AnimatedText({
     });
   };
 
-  return (
-    <Tag 
-      ref={textRef} 
-      className={cn("inline-block leading-tight", className)}
-      aria-label={text}
-    >
-      {renderText()}
-    </Tag>
+  // Use createElement to properly apply the ref to the dynamic element
+  return React.createElement(
+    tag,
+    {
+      ref: textRef,
+      className: cn("inline-block leading-tight", className),
+      "aria-label": text,
+    },
+    renderText()
   );
 }
